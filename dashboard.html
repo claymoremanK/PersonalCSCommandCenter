@@ -41,7 +41,7 @@
                     30%
                 </div>
             </div>
-            <button class="bg-gray-400 rounded-2xl p-2 m-2 shadow-lg hover:bg-gray-600 max-w-35 w-auto">Focus</button>
+            <button class="bg-blue-600 rounded-2xl p-2 m-2 shadow-lg hover:bg-blue-900 max-w-35 w-auto">Focus</button>
 
                 </article>
             </section>
@@ -49,41 +49,27 @@
 
             <section class="task-section bg-slate-800 p-8 m-4 flex flex-col gap-2 rounded-2xl">
                 <h2 class="text-2xl font-mono font-bold">Tasks</h2>
-                <ul class="task-list bg-slate-900 p-8 m-2 rounded-2xl shadow-2xl flex flex-col gap-2">
-                    <li class="task-item bg-gray-700 p-2 m-2 rounded-2xl shadow-2xl flex flex-row gap-2">
-                        <input type="checkbox" id="itemCheckbox1" name="taskCheckbox1">
-                        <label for="itemCheckbox1" class="font-mono text-lg">
-                            Create Basic Page Structure
-                            
-                        </label>
-                    </li>
-                    <li class="task-item bg-gray-700 p-2 m-2 rounded-2xl shadow-2xl flex flex-row gap-2">
-                        <input type="checkbox" id="itemCheckbox2" name="taskCheckbox2">
-                        <label for="itemCheckbox2" class="font-mono text-lg">
-                            Add project/task data
-                            
-                        </label>
-                        
-                    </li>
-                    <li class="task-item bg-gray-700 p-2 m-2 rounded-2xl shadow-2xl flex flex-row gap-2">
-                        <input type="checkbox" id="itemCheckbox3" name="taskCheckbox3">
-                        <label for="itemCheckbox3" class="font-mono text-lg">
-                            Make one interaction work
+              <!--<div class="bg-slate-900 p-8 m-4 flex flex-row gap-2 rounded-2xl shadow-2xl">
+                    <input id="taskName" type="text" class="rounded-2xl p-2 m-2 w-full max-w-350 border-2 border-white" placeholder="Enter New Task Name">
+                 <button id="newTaskButton" class="rounded-2xl bg-blue-600 shadow-2xl w-full max-w-75 hover:bg-blue-900">Add</button>
+                </div>-->
+                
+                <form id="addTaskForm" class="bg-slate-900 p-8 m-4 flex flex-col rounded-2xl shadow-2xl gap-2">
+                    <label for="taskName" class="font-mono font-bold text-lg">Add a new task: </label>
+                    <div class="flex flex-row gap-2">
+                    <input name="taskName" id="taskName" type="text" class="rounded-2xl p-2 m-2 w-full max-w-300 border-2 border-white" placeholder="Enter New Task Name">
+                    <button id="newTaskButton" class="rounded-2xl bg-blue-600 shadow-2xl w-full max-w-40 hover:bg-blue-900">Add</button>
+                    </div>
+
                     
-                            
-                        </label>
-                    </li>
-                     <li class="task-item bg-gray-700 p-2 m-2 rounded-2xl shadow-2xl flex flex-row gap-2">
-                        <input type="checkbox" id="itemCheckbox4" name="taskCheckbox4">
-                        <label for="itemCheckbox4" class="font-mono text-lg">
-                            New Task
+                </form>
+
+
+                <ul id="taskList" class="task-list bg-slate-900 p-8 m-2 rounded-2xl shadow-2xl flex flex-col gap-2">
                     
-                            
-                        </label>
-                    </li>
+                   
+
                 </ul>
-            
-            
             </section>
         </main>
        </div>
