@@ -20,6 +20,7 @@ const ListTask = document.getElementById("taskList");
 const taskForm = document.getElementById("addTaskForm");
 const taskInput = document.getElementById("taskName");
 const addButton = document.getElementById("newTaskButton");
+let newTaskId = 4;
 
 
 
@@ -27,7 +28,7 @@ const tasksCompleted = document.getElementById("taskCount");
 const tasksTotal = document.getElementById("taskTotal");
 
 
-tasksTotal.textContent = tasks.length
+
 
 renderTasks();
 
@@ -35,6 +36,7 @@ updateTaskCounter();
 
 
 function renderTasks(){
+    ListTask.innerHTML = "";
 
     for(let i = 0; i < tasks.length; i++){
     const item = document.createElement("li");
@@ -52,7 +54,7 @@ function renderTasks(){
 
         cBox.addEventListener("change", function(){
 
-        const taskId = parseInt(cBox.id.replace("task-", ""))
+        const taskId = parseInt(cBox.id.replace("task-", ""));
 
         const task = tasks.find(function(task){
             return task.id === taskId;
@@ -96,9 +98,27 @@ function updateTaskCounter (){
     }
 
     tasksCompleted.textContent = numberofCompletedTasks;
+    tasksTotal.textContent = tasks.length
 }
 
-taskForm.addEventListener("submit", function(){
+function taskFormSubmit(event){
     const newTask = taskInput.value.trim();
+    event.preventDefault();
+
+    if(newTask === ""){
+        alert("Please provide a title for the task")
+        return;
+        
+    } else{
+        tasks.push({id: newTaskId, title: newTask, completed: false})
+        console.log(tasks)
+        renderTasks();
+        updateTaskCounter();
     
-})
+    }
+
+    newTaskId++;
+
+}
+
+taskForm.addEventListener("submit", taskFormSubmit);
