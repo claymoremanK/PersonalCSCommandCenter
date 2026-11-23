@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Command Center</title>
+        <link href="output.css" rel="stylesheet">
+    </head>
+    <body class="min-h-screen bg-gray-900 text-white">
+       <div class="dashboard-container">
+        <header class="flex flex-col items-center justify-center bg-slate-600 rounded-2xl m-4 mt-4 p-4 w-auto max-w-screen">
+            <h1 class="text-4xl font-bold font-serif text-shadow-white">Personal Command Center</h1>
+            <h2 class="text-center">Build. Learn. Understand</h2>
+        </header>
+        <main class="flex flex-col gap-2">
+            <section class="summary-section flex flex-row justify-around gap-2">
+                <article class="flex flex-col bg-slate-800 rounded-2xl p-4 w-full max-w-100 items-center">
+                    <h2 class="text-2xl font-mono font-bold">Projects</h2>
+                    <p class="projectCount text-3xl font-mono font-extrabold">1</p>
+                </article>
+                <article class="flex flex-col bg-slate-800 rounded-2xl p-4 w-full max-w-100 items-center">
+                    <h2 class="text-2xl font-mono font-bold">Tasks</h2>
+                    <div class="flex  items-baseline mt-2 gap-2">
+                    <p id="taskCount" class="text-3xl font-mono font-extrabold">0</p>
+                    <p class="text-3xl font-mono font-extrabold">/</p>
+                    <p id="taskTotal" class="text-3xl font-mono font-extrabold">3</p>
+                    </div>
+
+                </article>
+                <article class="flex flex-col bg-slate-800 rounded-2xl p-4 w-full max-w-100 items-center">
+                    <h2 class="text-2xl font-mono font-bold">Streak</h2>
+                    <p class="streakCount text-3xl font-mono font-extrabold">0</p>
+                </article>
+            </section>
+            <section class="current-project bg-slate-800 rounded-2xl p-8 m-4 flex flex-col gap-2">
+                <h2 class="text-3xl font-mono font-bold">Current Project</h2>
+                <article class="project-card bg-slate-900 rounded-2xl p-4  flex flex-col gap-2">
+                    <h3 class="text-3xl font-mono font-bold">CS Command Center</h3>
+                    <div class="progress-bar w-300 rounded-full bg-gray-700">
+                <div class="bg-blue-500 h-full rounded-full w-[30%] text-white">
+                    30%
+                </div>
+            </div>
+            <button class="bg-blue-600 rounded-2xl p-2 m-2 shadow-lg hover:bg-blue-900 max-w-35 w-auto">Focus</button>
+
+                </article>
+            </section>
+
+
+            <section class="task-section bg-slate-800 p-8 m-4 flex flex-col gap-2 rounded-2xl">
+                <h2 class="text-2xl font-mono font-bold">Tasks</h2>
+              <!--<div class="bg-slate-900 p-8 m-4 flex flex-row gap-2 rounded-2xl shadow-2xl">
+                    <input id="taskName" type="text" class="rounded-2xl p-2 m-2 w-full max-w-350 border-2 border-white" placeholder="Enter New Task Name">
+                 <button id="newTaskButton" class="rounded-2xl bg-blue-600 shadow-2xl w-full max-w-75 hover:bg-blue-900">Add</button>
+                </div>-->
+                
+                <form id="addTaskForm" class="bg-slate-900 p-8 m-4 flex flex-col rounded-2xl shadow-2xl gap-2">
+                    <label for="taskName" class="font-mono font-bold text-lg">Add a new task: </label>
+                    <div class="flex flex-row gap-2">
+                    <input name="taskName" id="taskName" type="text" class="rounded-2xl p-2 m-2 w-full max-w-300 border-2 border-white" placeholder="Enter New Task Name">
+                    <button type="submit" id="newTaskButton" class="rounded-2xl bg-blue-600 shadow-2xl w-full max-w-40 hover:bg-blue-900">Add</button>
+                    </div>
+
+                    
+                </form>
+
+
+                <ul id="taskList" class="task-list bg-slate-900 p-8 m-2 rounded-2xl shadow-2xl flex flex-col gap-2">
+                    
+                   
+
+                </ul>
+            </section>
+        </main>
+       </div>
+
+       <script src="dashboard.js"></script>
+    </body>
+</html>
