@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+/* Design tokens. Each one becomes a utility class: bg-canvas, border-line, text-accent, ... */
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: #0b0b0e;        /* page background */
+  --color-panel: #121216;         /* sidebar, inputs, progress tracks */
+  --color-card: #18181e;          /* cards and list rows */
+  --color-line: #26262f;          /* borders and dividers */
+  --color-accent: #8b5cf6;        /* violet-500: buttons, progress, focus */
+  --color-accent-hover: #7c3aed;  /* violet-600 */
+}
+
+@layer base {
+  body {
+    /* Two faint violet glows, so the dark background has some depth. */
+    background-image:
+      radial-gradient(circle at 85% -10%, rgb(139 92 246 / 0.10), transparent 40%),
+      radial-gradient(circle at -10% 110%, rgb(139 92 246 / 0.06), transparent 40%);
+    background-attachment: fixed;
+  }
+}

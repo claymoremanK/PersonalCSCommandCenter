@@ -15,10 +15,17 @@ const ROUTES = {
 };
 
 // Tailwind only generates classes it can find as complete strings in the
-// source. So these are written out in full, never built with string pieces
-// like "text-" + color.
-const NAV_ACTIVE = ["bg-zinc-800", "text-violet-400"];
-const NAV_IDLE = ["text-slate-400"];
+// source, so every class name below is written out in full, never built
+// from pieces like "text-" + color.
+const NAV_ACTIVE = ["bg-card", "text-violet-300"];
+const NAV_IDLE = ["text-slate-500"];
+
+// The board columns are the project statuses, left to right.
+const BOARD = [
+    { status: "Planning", listId: "colPlanning", countId: "countPlanning" },
+    { status: "In Progress", listId: "colInProgress", countId: "countInProgress" },
+    { status: "Completed", listId: "colCompleted", countId: "countCompleted" },
+];
 
 let store = loadStore();
 
@@ -28,11 +35,29 @@ const $ = (id) => document.getElementById(id);
 
 // Creates an element with text. textContent (not innerHTML) means user
 // input is shown as plain text, never run as HTML.
-function el(tag, className, text) {
+function el(tag, className, text = "") {
     const node = document.createElement(tag);
     node.className = className;
     node.textContent = text;
     return node;
+}
+
+// "2026-12-03" becomes a Date at local midnight. new Date("2026-12-03") would
+// be read as UTC, which can show the wrong day in some time zones.
+function parseDate(iso) {
+    const [year, month, day] = iso.split("-").map(Number);
+    return new Date(year, month - 1, day);
+}
+
+function formatDate(iso) {
+    return parseDate(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function isOverdue(project) {
+    if (!project.targetDate || project.status === "Completed") return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return parseDate(project.targetDate) < today;
 }
 
 // --- State -----------------------------------------------------------
@@ -63,6 +88,8 @@ function showRoute() {
         const active = link.dataset.route === route;
         link.classList.remove(...(active ? NAV_IDLE : NAV_ACTIVE));
         link.classList.add(...(active ? NAV_ACTIVE : NAV_IDLE));
+        if (active) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
     }
 
     if (route === "tasks") taskInput.focus();
@@ -77,42 +104,53 @@ function renderAll() {
     renderTasks();
 }
 
-function createProjectCard(project) {
-    // Computed from the data every time. Never stored on the project.
+// Every number here is computed from the data. Nothing is stored on a project.
+function createProjectCard(project, { showStatus = false } = {}) {
     const stats = model.projectStats(store, project.id);
 
     const card = el(
         "article",
-        "bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-3",
-        ""
+        "flex flex-col gap-4 rounded-2xl border border-line bg-card p-5 transition-colors hover:border-violet-500/40"
     );
 
-    const header = el("div", "flex items-start justify-between gap-3", "");
-    header.append(
-        el("h3", "font-semibold text-slate-100 break-words", project.name),
-        el(
-            "span",
-            "text-xs font-medium text-violet-400 bg-zinc-800 rounded-full px-2 py-1 shrink-0",
-            project.status
-        )
-    );
+    const header = el("div", "flex items-start justify-between gap-3");
+    header.append(el("h3", "min-w-0 break-words font-semibold text-white", project.name));
+    if (showStatus) {
+        header.append(
+            el("span", "shrink-0 rounded-full bg-panel px-2.5 py-1 text-xs font-medium text-slate-300", project.status)
+        );
+    }
 
-    const bar = el("div", "w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden", "");
-    const fill = el("div", "h-full bg-violet-500 rounded-full transition-all", "");
+    const bar = el("div", "h-1.5 w-full overflow-hidden rounded-full bg-panel");
+    const fill = el("div", "h-full rounded-full bg-violet-500 transition-all");
     // A dynamic percentage can't be a Tailwind class, so it goes in the
     // inline style. This is the one place where we set style directly.
     fill.style.width = `${stats.percent}%`;
     bar.append(fill);
 
+    const footer = el("div", "flex items-center justify-between gap-3 text-xs");
+    footer.append(
+        el(
+            "span",
+            "text-slate-400",
+            stats.total === 0 ? "No tasks yet" : `${stats.completed} of ${stats.total} tasks done`
+        )
+    );
+    if (project.targetDate) {
+        footer.append(
+            el(
+                "span",
+                isOverdue(project) ? "shrink-0 text-red-400" : "shrink-0 text-slate-500",
+                `Due ${formatDate(project.targetDate)}`
+            )
+        );
+    }
+
     card.append(
         header,
-        el("p", "text-sm text-slate-400", project.description || "No description"),
+        el("p", "line-clamp-2 text-sm text-slate-400", project.description || "No description yet"),
         bar,
-        el(
-            "p",
-            "text-sm text-slate-400",
-            `${stats.completed} of ${stats.total} tasks done (${stats.percent}%)`
-        )
+        footer
     );
 
     return card;
@@ -120,16 +158,44 @@ function createProjectCard(project) {
 
 function renderDashboard() {
     const s = model.overallStats(store);
+    const inProgress = store.projects.filter((p) => p.status === "In Progress").length;
+    const completed = store.projects.filter((p) => p.status === "Completed").length;
+
     $("statProjects").textContent = s.projects;
-    $("statActive").textContent = s.activeProjects;
+    $("statActive").textContent = `${s.activeProjects} active`;
+    $("statInProgress").textContent = inProgress;
+    $("statCompleted").textContent = completed;
     $("statTasks").textContent = `${s.completed} / ${s.total}`;
     $("statPercent").textContent = `${s.percent}%`;
+    $("statBar").style.width = `${s.percent}%`;
 
-    $("dashboardProjects").replaceChildren(...store.projects.map(createProjectCard));
+    renderBoard();
+}
+
+function renderBoard() {
+    for (const column of BOARD) {
+        const projects = store.projects.filter((p) => p.status === column.status);
+
+        const cards = projects.map((p) => createProjectCard(p));
+        if (cards.length === 0) {
+            cards.push(
+                el(
+                    "p",
+                    "rounded-xl border border-dashed border-line px-4 py-6 text-center text-sm text-slate-600",
+                    "Nothing here yet"
+                )
+            );
+        }
+
+        $(column.listId).replaceChildren(...cards);
+        $(column.countId).textContent = projects.length;
+    }
 }
 
 function renderProjects() {
-    $("projectsGrid").replaceChildren(...store.projects.map(createProjectCard));
+    $("projectsGrid").replaceChildren(
+        ...store.projects.map((p) => createProjectCard(p, { showStatus: true }))
+    );
 }
 
 function renderTaskForm() {
@@ -152,16 +218,15 @@ function renderTaskForm() {
 function createTaskItem(task, projectName) {
     const item = el(
         "li",
-        "bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-zinc-700 transition-colors",
-        ""
+        "flex items-center gap-3 rounded-xl border border-line bg-card px-4 py-3 transition-colors hover:border-violet-500/40"
     );
 
-    const label = el("label", "flex-1 flex items-center gap-3 cursor-pointer min-w-0", "");
+    const label = el("label", "flex min-w-0 flex-1 cursor-pointer items-center gap-3");
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = task.completed;
-    checkbox.className = "accent-violet-500 w-4 h-4 shrink-0 cursor-pointer";
+    checkbox.className = "size-4 shrink-0 cursor-pointer accent-violet-500";
     checkbox.addEventListener("change", () => {
         update(model.setTaskCompleted(store, task.id, checkbox.checked));
     });
@@ -169,14 +234,14 @@ function createTaskItem(task, projectName) {
     const title = el(
         "span",
         task.completed
-            ? "text-sm font-medium break-words line-through text-slate-500"
-            : "text-sm font-medium break-words text-slate-200",
+            ? "min-w-0 flex-1 break-words text-sm font-medium text-slate-500 line-through"
+            : "min-w-0 flex-1 break-words text-sm font-medium text-slate-100",
         task.title
     );
 
     const tag = el(
         "span",
-        "text-xs text-slate-500 bg-zinc-800 rounded-md px-2 py-0.5 shrink-0",
+        "shrink-0 rounded-md bg-panel px-2 py-0.5 text-xs text-slate-400",
         projectName ?? "Unknown project"
     );
 
@@ -184,7 +249,7 @@ function createTaskItem(task, projectName) {
 
     const deleteButton = el(
         "button",
-        "text-sm text-slate-500 hover:text-red-400 transition-colors px-2 py-1 rounded-md shrink-0",
+        "shrink-0 rounded-md px-2 py-1 text-sm text-slate-500 transition-colors hover:text-red-400",
         "Delete"
     );
     deleteButton.type = "button";
@@ -241,6 +306,12 @@ if (store.projects.length === 0) {
     const general = model.createProject({ name: "General", status: "In Progress" });
     update(model.addProject(store, general));
 }
+
+$("pageDate").textContent = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+});
 
 renderAll();
 showRoute();
