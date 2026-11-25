@@ -1,218 +1,126 @@
-    const defaultTasks = [
-        {
-            id: 1,
-            title: "Make one interaction work.",
-            completed: true
-        },
-        {
-            id: 2,
-            title: "Create Basic Page Structure.",
-            completed: true
-        },
-        {
-            id: 3,
-            title: "Add project/task date.",
-            completed: false
-        },
-    ]
+const STORAGE_KEY = "myTasks";
 
+const defaultTasks = [
+    { id: 1, title: "Make one interaction work.", completed: true },
+    { id: 2, title: "Create Basic Page Structure.", completed: true },
+    { id: 3, title: "Add project/task date.", completed: false },
+];
 
-    const tasks = JSON.parse(localStorage.getItem("myTasks")) || defaultTasks;
+// --- State -----------------------------------------------------------
 
-
-
-    const ListTask = document.getElementById("taskList");
-    const taskForm = document.getElementById("addTaskForm");
-    const taskInput = document.getElementById("taskName");
-    const addButton = document.getElementById("newTaskButton");
-
-
-
-
-    const tasksCompleted = document.getElementById("taskCount");
-    const tasksTotal = document.getElementById("taskTotal");
-
-
-
-
-    renderTasks();
-
-    updateTaskCounter();
-
-    function saveTasksToLocalStorage() {
-        localStorage.setItem("myTasks", JSON.stringify(tasks));
+function loadTasks() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) ? saved : structuredClone(defaultTasks);
+    } catch {
+        return structuredClone(defaultTasks);
     }
-
-
-    function renderTasks(){
-        ListTask.innerHTML = "";
-
-        for(let i = 0; i < tasks.length; i++){
-        const item = document.createElement("li");
-    item.classList.add(
-        "bg-zinc-900",
-        "border",
-        "border-zinc-800",
-        "rounded-xl",
-        "px-4",
-        "py-3",
-        "flex",
-        "items-center",
-        "gap-3",
-        "transition-colors",
-        "hover:border-zinc-700"
-    );
-        const label = document.createElement("label");
-        label.classList.add(
-        "flex-1",
-        "text-sm",
-        "font-medium",
-        "text-slate-200",
-        "cursor-pointer",
-        "break-words"
-    );
-        const cBox = document.createElement("input");
-        cBox.classList.add(
-        "accent-violet-500",
-        "w-4",
-        "h-4",
-        "shrink-0",
-        "cursor-pointer"
-    );
-        const delButton = document.createElement("button");
-    delButton.classList.add(
-        "text-sm",
-        "text-slate-500",
-        "hover:text-red-400",
-        "transition-colors",
-        "px-2",
-        "py-1",
-        "rounded-md",
-        "shrink-0"
-    );
-
-        cBox.type = "checkbox";
-        delButton.type = "button";
-        delButton.id = `delButton-${tasks[i].id}`
-        cBox.id = `task-${tasks[i].id}`
-        cBox.checked = tasks[i].completed;
-
-        delButton.textContent = "Delete"
-        
-        label.textContent = tasks[i].title
-        label.htmlFor = cBox.id;
-        if (tasks[i].completed === true) {
-    label.classList.add("line-through", "text-slate-500");
 }
 
-            cBox.addEventListener("change", function(){
+let tasks = loadTasks();
 
-            const taskId = parseInt(cBox.id.replace("task-", ""));
+// --- DOM references --------------------------------------------------
 
-            const task = tasks.find(function(task){
-                return task.id === taskId;
-            })
+const taskList = document.getElementById("taskList");
+const taskForm = document.getElementById("addTaskForm");
+const taskInput = document.getElementById("taskName");
+const taskCount = document.getElementById("taskCount");
+const taskTotal = document.getElementById("taskTotal");
 
-            task.completed = cBox.checked;
+// --- Operations: change state, then commit() -------------------------
 
+function addTask(title) {
+    const nextId = Math.max(0, ...tasks.map((t) => t.id)) + 1;
+    tasks.push({ id: nextId, title, completed: false });
+    commit();
+}
 
-            updateTaskCounter();
-            saveTasksToLocalStorage();
-            renderTasks();
-            
-        
+function setCompleted(id, completed) {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    task.completed = completed;
+    commit();
+}
 
+function deleteTask(id) {
+    tasks = tasks.filter((t) => t.id !== id);
+    commit();
+}
 
-            
-        })
+// One place where state becomes storage and screen.
+function commit() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    render();
+}
 
-        delButton.addEventListener("click", function(){
-            const taskId = parseInt(delButton.id.replace("delButton-", ""));
+// --- Rendering -------------------------------------------------------
 
-
-            const index = tasks.findIndex(function(task){
-                return task.id === taskId;
-            })
-
-            if(index !== -1){
-                tasks.splice(index, 1);
-                renderTasks();
-                updateTaskCounter();
-                saveTasksToLocalStorage();
-                console.log(tasks)
-            }
-            
-
-
-
-
-
-            
-        })
-
-
-
-
-
-        item.appendChild(cBox);
-        item.appendChild(label);
-        item.appendChild(delButton);
-        
-
-        ListTask.appendChild(item);
+function render() {
+    taskList.innerHTML = "";
+    for (const task of tasks) {
+        taskList.appendChild(createTaskItem(task));
     }
-    }
+    updateStats();
+}
 
+function createTaskItem(task) {
+    const item = document.createElement("li");
+    item.className =
+        "bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 " +
+        "flex items-center gap-3 transition-colors hover:border-zinc-700";
 
+    // Wrapping the checkbox and text in one <label> means clicking the
+    // text toggles the checkbox. No id/htmlFor bookkeeping needed.
+    const label = document.createElement("label");
+    label.className = "flex-1 flex items-center gap-3 cursor-pointer min-w-0";
 
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = task.completed;
+    checkbox.className = "accent-violet-500 w-4 h-4 shrink-0 cursor-pointer";
+    checkbox.addEventListener("change", () => {
+        setCompleted(task.id, checkbox.checked);
+    });
 
-    function updateTaskCounter (){
-    let numberofCompletedTasks = 0;
-        
-        for(let i = 0; i < tasks.length; i++){
-            if(tasks[i].completed === true){
-                
+    const text = document.createElement("span");
+    text.textContent = task.title;
+    text.className = task.completed
+        ? "text-sm font-medium break-words line-through text-slate-500"
+        : "text-sm font-medium break-words text-slate-200";
 
-                
-                numberofCompletedTasks++;
+    label.append(checkbox, text);
 
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.textContent = "Delete";
+    deleteButton.className =
+        "text-sm text-slate-500 hover:text-red-400 transition-colors " +
+        "px-2 py-1 rounded-md shrink-0";
+    deleteButton.addEventListener("click", () => deleteTask(task.id));
 
-                
-            }
-        }
+    item.append(label, deleteButton);
+    return item;
+}
 
-        tasksCompleted.textContent = numberofCompletedTasks;
-        tasksTotal.textContent = tasks.length
-    }
+function updateStats() {
+    const done = tasks.filter((t) => t.completed).length;
+    taskCount.textContent = done;
+    taskTotal.textContent = tasks.length;
+}
 
-    function taskFormSubmit(event){
-        const newTask = taskInput.value.trim();
-        event.preventDefault();
+// --- Events ----------------------------------------------------------
 
-        if(newTask === ""){
-            alert("Please provide a title for the task")
-            return;
-            
-        } else{
-            const TaskIds = tasks.map(function(task){
-        return task.id;
-    })
-            const lastTaskId = Math.max(0, ...TaskIds);
-            const newTaskId = lastTaskId + 1;
-            tasks.push({id: newTaskId, title: newTask, completed: false})
-            console.log(tasks)
-            renderTasks();
-            updateTaskCounter();
-            saveTasksToLocalStorage();
-            taskInput.value = "";
-            
-            
+taskForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-        
-        }
-
-
+    const title = taskInput.value.trim();
+    if (title === "") {
+        taskInput.focus();
+        return;
     }
 
-    taskForm.addEventListener("submit", taskFormSubmit);
+    addTask(title);
+    taskInput.value = "";
+});
 
+render();
