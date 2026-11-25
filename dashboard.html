@@ -1,107 +1,103 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Command Center</title>
-        <link href="output.css" rel="stylesheet">
-    </head>
-    <body class="min-h-screen bg-zinc-950 text-slate-100 antialiased">
-    <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <header class="border-b border-slate-800 pb-6 mb-8">
-              <p class="text-sm font-semibold tracking-widest text-purple-400 uppercase">
-        Personal Workspace
-    </p>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center</title>
+    <link href="output.css" rel="stylesheet">
+  </head>
 
-    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mt-2">
-        Personal Command Center
-    </h1>
+  <body class="min-h-screen bg-zinc-950 text-slate-100 antialiased flex flex-col md:flex-row">
 
-    <p class="text-slate-400 mt-2">
-        Build. Learn. Understand.
-    </p>
-        </header>
-        <main class="flex flex-col gap-6">
-            <section class="summary-section grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <article class="flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl p-5 w-full max-w-100 items-start gap-2">
-                    <h2 class="text-lg font-semibold text-slate-400">Projects</h2>
-                    <p class="projectCount text-2xl font-mono font-extrabold text-purple-400">1</p>
-                </article>
-                <article class="flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl p-5 w-full max-w-100 items-start gap-2">
-                    <h2 class="text-lg font-semibold text-slate-400">Tasks</h2>
-                    <div class="flex  items-baseline mt-2 gap-2">
-                    <p id="taskCount" class="text-2xl font-mono font-extrabold text-purple-400">0</p>
-                    <p class="text-2xl font-mono font-extrabold">/</p>
-                    <p id="taskTotal" class="text-2xl font-mono font-extrabold text-slate-400">3</p>
-                    </div>
+    <!-- Sidebar: a horizontal bar on phones, a column on medium screens and up -->
+    <aside class="bg-zinc-900 border-b md:border-b-0 md:border-r border-zinc-800 p-4 md:w-56 md:min-h-screen flex flex-col gap-4 md:gap-6">
+      <div class="flex items-center gap-2 px-2">
+        <span class="font-mono font-extrabold text-violet-500">{ }</span>
+        <span class="font-semibold tracking-tight">Command Center</span>
+      </div>
 
-                </article>
-                <article class="flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl p-5 w-full max-w-100 items-start gap-2">
-                    <h2 class="text-lg font-semibold text-slate-400">Streak</h2>
-                    <p class="streakCount text-2xl font-mono font-extrabold text-purple-400">0</p>
-                </article>
-            </section>
-            <section class="current-project bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6 sm:p-8 flex flex-col gap-4">
-                <h2 class="text-lg font-mono font-semibold text-slate-400">
-                    Current Project
-                </h2>
-                <article class="project-card bg-zinc-900/70 rounded-2xl p-4 flex flex-col gap-4">
-                    <h3 class="text-2xl font-mono font-semibold text-slate-100">
-                        CS Command Center
-                    </h3>
-                    <p class="text-slate-400">
-                         A personal workspace for organizing projects, managing tasks, and tracking my computer science learning journey.
-                    </p>
-                    <div class="flex flex-col gap-2">
-    <div class="flex justify-between items-center">
-        <span class="text-sm text-slate-400">Progress</span>
-        <span class="text-sm font-semibold text-violet-400">30%</span>
+      <nav class="flex md:flex-col gap-1 overflow-x-auto">
+        <a href="#/dashboard" data-route="dashboard" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-zinc-800 hover:text-slate-100 transition-colors whitespace-nowrap">Dashboard</a>
+        <a href="#/projects" data-route="projects" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-zinc-800 hover:text-slate-100 transition-colors whitespace-nowrap">Projects</a>
+        <a href="#/tasks" data-route="tasks" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-zinc-800 hover:text-slate-100 transition-colors whitespace-nowrap">Tasks</a>
+        <a href="#/calendar" data-route="calendar" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-zinc-800 hover:text-slate-100 transition-colors whitespace-nowrap">Calendar</a>
+        <a href="#/settings" data-route="settings" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-400 hover:bg-zinc-800 hover:text-slate-100 transition-colors whitespace-nowrap">Settings</a>
+      </nav>
+    </aside>
+
+    <div class="flex-1 min-w-0">
+
+      <!-- Top header -->
+      <header class="flex items-center justify-between gap-4 border-b border-zinc-800 px-4 sm:px-8 py-4">
+        <h1 id="pageTitle" class="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <a id="quickAdd" href="#/tasks" class="bg-violet-600 hover:bg-violet-500 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap">+ New task</a>
+      </header>
+
+      <main class="px-4 sm:px-8 py-8 flex flex-col gap-6 max-w-7xl">
+
+        <!-- Dashboard -->
+        <section data-view="dashboard" hidden class="flex flex-col gap-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <article class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2">
+              <h2 class="text-sm font-medium text-slate-400">Projects</h2>
+              <p id="statProjects" class="text-2xl font-mono font-extrabold text-purple-400">0</p>
+            </article>
+            <article class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2">
+              <h2 class="text-sm font-medium text-slate-400">Active projects</h2>
+              <p id="statActive" class="text-2xl font-mono font-extrabold text-purple-400">0</p>
+            </article>
+            <article class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2">
+              <h2 class="text-sm font-medium text-slate-400">Tasks done</h2>
+              <p id="statTasks" class="text-2xl font-mono font-extrabold text-purple-400">0 / 0</p>
+            </article>
+            <article class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-2">
+              <h2 class="text-sm font-medium text-slate-400">Overall progress</h2>
+              <p id="statPercent" class="text-2xl font-mono font-extrabold text-purple-400">0%</p>
+            </article>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <h2 class="text-lg font-semibold text-slate-300">Projects</h2>
+            <div id="dashboardProjects" class="grid gap-4 md:grid-cols-2"></div>
+          </div>
+        </section>
+
+        <!-- Projects -->
+        <section data-view="projects" hidden class="flex flex-col gap-6">
+          <p class="text-sm text-slate-500">Creating and opening projects comes in Phase 4.</p>
+          <div id="projectsGrid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+        </section>
+
+        <!-- Tasks -->
+        <section data-view="tasks" hidden class="flex flex-col gap-6">
+          <form id="addTaskForm" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-3">
+            <label for="taskName" class="text-sm font-medium text-slate-300">Add a task</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input id="taskName" name="taskName" type="text" placeholder="What needs doing?"
+                class="flex-1 rounded-lg px-3 py-2 bg-zinc-950 border border-zinc-700 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-zinc-500">
+              <select id="projectSelect"
+                class="rounded-lg px-3 py-2 bg-zinc-950 border border-zinc-700 focus:outline-none focus:border-violet-500"></select>
+              <button type="submit"
+                class="bg-violet-600 hover:bg-violet-500 text-white rounded-xl px-5 py-2 transition-colors">Add</button>
+            </div>
+            <p id="taskError" class="text-sm text-red-400 min-h-5"></p>
+          </form>
+
+          <p id="taskEmpty" hidden class="text-sm text-slate-500">No tasks yet. Add one above.</p>
+          <ul id="taskList" class="flex flex-col gap-3"></ul>
+        </section>
+
+        <!-- Placeholders -->
+        <section data-view="calendar" hidden>
+          <p class="text-slate-500">Calendar is coming later.</p>
+        </section>
+        <section data-view="settings" hidden>
+          <p class="text-slate-500">Settings are coming later.</p>
+        </section>
+
+      </main>
     </div>
 
-    <div class="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
-        <div class="h-full w-[30%] bg-violet-500 rounded-full transition-all"></div>
-    </div>
-</div>
-            <button class="bg-violet-600 hover:bg-violet-500 text-white rounded-xl px-4 py-2 transition-colors w-fit">
-                 Focus
-                  </button>
-                </article>
-            </section>
-
-
-            <section class="task-section bg-zinc-900/70 border border-zinc-800 p-6 sm:p-8 flex flex-col gap-4 rounded-2xl">
-                <h2 class="text-2xl font-mono font-bold">Tasks</h2>
- 
-                
-                <form id="addTaskForm"
-    class="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 sm:p-5 flex flex-col gap-3">
-
-    <label for="taskName" class="font-semibold text-slate-200">
-        Add a new task
-    </label>
-
-    <div class="flex flex-col sm:flex-row gap-3">
-
-        <input name="taskName" id="taskName" type="text"
-            class="rounded-lg p-3 w-full bg-zinc-900 border border-zinc-700 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-zinc-500"
-            placeholder="Enter new task name">
-
-        <button type="submit" id="newTaskButton"
-    class="bg-violet-600 hover:bg-violet-500 text-white rounded-xl px-5 py-2 transition-colors">
-    Add
-</button>
-
-    </div>
-</form>
-
-
-               <ul id="taskList"
-    class="task-list flex flex-col gap-3">
-</ul>
-            </section>
-        </main>
-       </div>
-
-       <script src="dashboard.js"></script>
-    </body>
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>
